@@ -22,7 +22,7 @@ steer/
 │   └── direct/         # Python — needs uv (CLI client)
 ├── .claude/
 │   ├── commands/       # Slash commands
-│   ├── skills/         # Agent skills (steer, drive)
+│   ├── skills/         # Agent skills (steer, drive, playwright-cli)
 │   └── agents/         # System prompts
 └── justfile            # Task runner recipes
 ```
@@ -128,6 +128,21 @@ If the user says no or is unsure, show them the tables above and wait for confir
    npm install -g @anthropic-ai/claude-code
    ```
 
+7.5. Install Chromium browser for playwright-cli (bundled with Claude Code):
+    Verify playwright-cli is available:
+    ```
+    playwright-cli --version
+    ```
+    If not available globally, use `npx playwright-cli` as fallback.
+
+    Install the Chromium browser binary:
+    ```
+    npx playwright install chromium
+    ```
+
+    Note: The exact installation method may need verification on the target device.
+    If `playwright-cli` is not found after installing Claude Code, try `npx playwright-cli`.
+
 8. Build steer (Swift CLI):
    ```
    cd apps/steer && swift build -c release 2>&1 | tail -5
@@ -211,6 +226,15 @@ Run each check and record PASS/FAIL. Do not stop on failure — run all checks a
     ```
     PASS if version string returned. FAIL if command not found.
 
+19.5. **playwright-cli** — verify browser automation works (requires logged-in GUI session):
+    ```
+    playwright-cli open https://example.com
+    playwright-cli snapshot
+    playwright-cli close
+    ```
+    PASS if snapshot YAML file is created and contains "Example Domain". FAIL if command not found or error.
+    Note: This launches a headed Chromium browser — requires an active GUI session.
+
 20. Remind the user about manual macOS permissions if any steer checks failed:
 
     | Permission | Why | How |
@@ -244,6 +268,7 @@ Present results in this format:
 | yq | [installed/missing] | [version] |
 | Node.js | [installed/missing] | [version] |
 | Claude Code | [installed/missing] | [version] |
+| playwright-cli | [installed/missing] | [version] |
 | Pi Agent (optional) | [installed/not installed] | [version] |
 
 ### Apps
@@ -269,6 +294,7 @@ Present results in this format:
 | direct --help | [PASS/FAIL] | [commands found or error] |
 | just --list | [PASS/FAIL] | [recipe count or error] |
 | claude --version | [PASS/FAIL] | [version or error] |
+| playwright-cli open/snapshot/close | [PASS/FAIL] | [snapshot content or error] |
 
 ### Permissions
 
@@ -283,9 +309,9 @@ If any steer checks failed, list which permissions need to be granted:
 
 ### Result
 
-**[X/10 checks passed]** — [READY / NOT READY — needs attention]
+**[X/11 checks passed]** — [READY / NOT READY — needs attention]
 
-If all 10 pass: "Sandbox is fully operational. Start the server with `just listen`."
+If all 11 pass: "Sandbox is fully operational. Start the server with `just listen`."
 If any fail: List what needs to be fixed before the sandbox is ready.
 
 ### Fix It?
